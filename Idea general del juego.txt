@@ -1,0 +1,12 @@
+La idea del juego es que sea un "¿Quién quiere ser millonario?" completo. Cada pregunta tendrá su categoría,
+su dificultad y habrá un premio determinado. Existe la funcionalidad de retirarse en caso de que el concursante
+lo desee una vez alcanzado el primer premio. Esta posibilidad se seguirá repitiendo cada vez que el premio aumente.
+
+El juego en consola se controla a través de diferentes funciones, los inputs son las respuestas del concursante. La
+dificultad de las preguntas irán aumentando a medida que se van acertando respuestas. La puntuación dentro del código
+no aumenta, sino que está predeterminada según el número de preguntas que se realizarán.
+
+En caso de desearlo, el jugador tiene la posibilidad de reintentar después de fallar su respuesta y esto reiniciará el
+bucle del juego.
+
+A futuro se desea implementar un modo infinito con el objetivo de comparar puntuaciones máximas entre usuarios. 
