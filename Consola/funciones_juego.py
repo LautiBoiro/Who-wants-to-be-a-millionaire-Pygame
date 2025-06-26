@@ -1,4 +1,5 @@
 import random
+import time
 
 pregunta_1 = {
     "Pregunta": "¿Cuántos dedos en total tiene un ser humano?",
@@ -56,9 +57,64 @@ pregunta_7 = {
     "Categoria/Dificultad": ("General", "Facil")
 }
 
+pregunta_8 = {
+    "Pregunta": "¿Cuál es la capital de Australia?",
+    "Opciones": ["A. Sydney", "B. Melbourne", "C. Canberra", "D. Brisbane"],
+    "Respuesta": "C",
+    "Descripcion": "Canberra es la capital de Australia desde 1913.",
+    "Categoria/Dificultad": ("Geografía", "Medio")
+}
 
-lista_preguntas = [pregunta_1, pregunta_2, pregunta_3, pregunta_4, 
-                   pregunta_5, pregunta_6, pregunta_7]
+pregunta_9 = {
+    "Pregunta": "¿Quién escribió 'Cien años de soledad'?",
+    "Opciones": ["A. Mario Vargas Llosa", "B. Gabriel García Márquez", "C. Pablo Neruda", "D. Isabel Allende"],
+    "Respuesta": "B",
+    "Descripcion": "Gabriel García Márquez, escritor colombiano, autor de esta famosa novela.",
+    "Categoria/Dificultad": ("Literatura", "Facil")
+}
+
+pregunta_10 = {
+    "Pregunta": "¿Qué velocidad tiene la luz en el vacío?",
+    "Opciones": ["A. 300,000 km/s", "B. 150,000 km/s", "C. 3,000 km/s", "D. 30,000 km/s"],
+    "Respuesta": "A",
+    "Descripcion": "La velocidad de la luz en el vacío es aproximadamente 300,000 kilómetros por segundo.",
+    "Categoria/Dificultad": ("Ciencia", "Dificil")
+}
+
+pregunta_11 = {
+    "Pregunta": "¿Cuál es el metal más ligero?",
+    "Opciones": ["A. Aluminio", "B. Litio", "C. Magnesio", "D. Titanio"],
+    "Respuesta": "B",
+    "Descripcion": "El litio es el metal más ligero y es usado en baterías recargables.",
+    "Categoria/Dificultad": ("Ciencia", "Medio")
+}
+
+pregunta_12 = {
+    "Pregunta": "¿En qué año comenzó la Primera Guerra Mundial?",
+    "Opciones": ["A. 1912", "B. 1914", "C. 1918", "D. 1939"],
+    "Respuesta": "B",
+    "Descripcion": "La Primera Guerra Mundial comenzó en 1914 y terminó en 1918.",
+    "Categoria/Dificultad": ("Historia", "Facil")
+}
+
+pregunta_13 = {
+    "Pregunta": "¿Cuál es el país con mayor número de idiomas oficiales?",
+    "Opciones": ["A. Sudáfrica", "B. India", "C. Bolivia", "D. Suiza"],
+    "Respuesta": "A",
+    "Descripcion": "Sudáfrica tiene 11 idiomas oficiales reconocidos.",
+    "Categoria/Dificultad": ("General", "Medio")
+}
+
+pregunta_14 = {
+    "Pregunta": "¿Qué instrumento mide la presión atmosférica?",
+    "Opciones": ["A. Barómetro", "B. Termómetro", "C. Anemómetro", "D. Higrómetro"],
+    "Respuesta": "A",
+    "Descripcion": "El barómetro es el instrumento utilizado para medir la presión atmosférica.",
+    "Categoria/Dificultad": ("Ciencia", "Facil")
+}
+
+respuestas_validas_si_o_no = ["si", "sí", "no"]
+respuestas_validas_opciones = ["a", "b", "c", "d"]
 
 def elegir_pregunta (lista_preguntas: list) -> dict | str:
     """Se encarga de elegir aleatoriamente una pregunta en la lista de diccionarios
@@ -114,7 +170,7 @@ def verificar_respuesta (respuesta: str, pregunta_elegida: dict) -> bool:
         bool: Devuelve True en caso de que la respuesta sea correcta, devuelve False en caso de que no lo sea
     """
     respuesta_correcta = False
-    if respuesta == pregunta_elegida ["Respuesta"]:
+    if respuesta.lower() == pregunta_elegida ["Respuesta"].lower():
         respuesta_correcta = True
     return respuesta_correcta
 
@@ -157,10 +213,10 @@ def verificar_perdida (respuesta_correcta_o_no: bool) -> bool:
     reiniciar = False
 
     if respuesta_correcta_o_no == False:
-        reintentar = input ("¿Desea reintentar? Si/No: ")
-        if reintentar == "No":
+        reintentar = pedir_confirmacion("¿Desea reintentar? Si/No: ", "Respuesta inválida. Ingrese Si o No", respuestas_validas_si_o_no)
+        if reintentar == "no":
             perdida = True
-        elif reintentar == "Si":
+        elif reintentar == "si" or reintentar == "sí":
             print ("El juego se reiniciará...")
             reiniciar = True
     return perdida, reiniciar
@@ -171,8 +227,42 @@ def pedir_retirarse () -> str:
     Returns:
         str: Respuesta del usuario (Si/No)
     """
-    retirar = input ("Te gustaría retirarte con tu premio acumulado? Si/No: ")
+    retirar = pedir_confirmacion ("Te gustaría retirarte con tu premio acumulado? Si/No: ", "Respuesta inválida. Ingrese Si o No", respuestas_validas_si_o_no)
     return retirar
+
+def pedir_confirmacion(mensaje: str, mensaje_error: str, lista_respuestas_validas: list, tiempo_limite: int = None) -> str | None:
+    """Valida la respuesta del usuario. Opcionalmente puede usar un tiempo límite.
+
+    Args:
+        mensaje (str): Mensaje que se va a mostrar al usuario al pedir la respuesta
+
+        mensaje_error (str): Mensaje que se muestra en caso de que el usuario ingrese una respuesta inválida
+
+        lista_respuestas_validas (str): Es la lista que contiene las respuestas válidas que debe ingreesar el usuario
+
+    Returns:
+        str: Devuelve la respuesta validada
+        None: Si se terminó el tiempo
+    """
+    bandera_while = True
+    respuesta = None
+    tiempo_inicio = time.time()
+
+    while bandera_while:
+        if tiempo_limite is not None and time.time() - tiempo_inicio > tiempo_limite:
+            print("¡Se acabó el tiempo!")
+            respuesta = None #Siempre que se termine el tiempo retorna None
+            bandera_while = False
+
+        else:
+            respuesta = input(mensaje).strip().lower()
+            for i in range(len(lista_respuestas_validas)):
+                if respuesta == lista_respuestas_validas[i]:
+                    bandera_while = False
+                    break
+            if bandera_while:
+                print(mensaje_error)
+    return respuesta
 
 def filtrar_pregunta_dificultad (dificultad_actual: str, estado_juego: dict, lista_preguntas: list) -> list:
     """Filtra las preguntas por dificultad específica, creando una lista
@@ -237,7 +327,7 @@ def preguntar_y_responder (estado_juego: dict, lista_preguntas: list) -> bool | 
     """
     pregunta = crear_y_verificar_nueva_pregunta (estado_juego, lista_preguntas)
     mostrar_turno(pregunta, estado_juego["Rondas"])
-    respuesta_jugador = input ("¿Cuál es su respuesta?: ")
+    respuesta_jugador = pedir_confirmacion("¿Cuál es su respuesta?: ", "Respuesta inválida. Ingrese A, B, C, o D", respuestas_validas_opciones)
     respuesta_correcta_o_no = verificar_respuesta(respuesta_jugador, pregunta)
     return respuesta_correcta_o_no, pregunta
 
@@ -255,7 +345,7 @@ def procesar_respuesta_correcta (bandera_continuar: bool, estado_juego: dict, pr
     print ("¡Respuesta correcta!")
     print (pregunta["Descripcion"])
     estado_juego ["Puntuacion"], retirar = verificar_puntuacion(estado_juego["Rondas"], estado_juego["Puntuacion"])
-    if retirar == "Si":
+    if retirar == "si" or retirar == "sí":
         bandera_continuar = False
     return bandera_continuar
 
@@ -305,7 +395,7 @@ def obtener_dificultad_por_ronda(ronda: int) -> str:
         dificultad = "Dificil"
     return dificultad
 
-def inicializar_juego () -> dict:
+def inicializar_juego (cantidad_preguntas: int) -> dict:
     """Inicializa el juego creando un diccionario con los datos principales
 
     Returns:
@@ -315,7 +405,8 @@ def inicializar_juego () -> dict:
         "Rondas" : 0,
         "Puntuacion" : 0,
         "Preguntas_elegidas" : set(),
-        "Perdida" : False
+        "Perdida" : False,
+        "Maximo_rondas" : cantidad_preguntas
     }
     return estado_juego
 
@@ -376,12 +467,12 @@ def finalizar_juego(estado: dict):
         print (f"¡Felicidades!¡Ganaste el premio mayor de ${estado["Puntuacion"]}!")
 
 
-def jugar ():
+def jugar (lista_preguntas: list, config: dict):
     """Función principal que controla el juego
     """
     reiniciar = True
     while reiniciar:
-        estado_del_juego = inicializar_juego()
+        estado_del_juego = inicializar_juego(config["cantidad_preguntas"])
         reiniciar = inicializar_bucle_del_juego(estado_del_juego, lista_preguntas)
         if not reiniciar:
             finalizar_juego(estado_del_juego)
