@@ -4,10 +4,11 @@ import json
 
 def escribir_preguntas(lista_preguntas: list, path: str):
     with open(path, "w", encoding = "utf-8") as archivo_preguntas:
+        encabezado = "Pregunta;Opciones;Respuesta;Categoria|Dificultad;Descripcion\n"
+        archivo_preguntas.write(encabezado)
         for pregunta in lista_preguntas:
             opciones_str = "|".join(pregunta["Opciones"]) #Paso la lista a un solo string
-            categoria = pregunta["Categoria/Dificultad"] [0] #La categoría se separa de la tupla
-            dificultad = pregunta["Categoria/Dificultad"] [1] #La dificultad se separa de la tupla
+            categoria, dificultad = pregunta["Categoria/Dificultad"] #Se separa categoría y dificultad de la tupla
             linea = (
             f"{pregunta["Pregunta"]};"
             f"{opciones_str};"
@@ -20,6 +21,7 @@ def escribir_preguntas(lista_preguntas: list, path: str):
 def cargar_preguntas(path: str):
     lista_preguntas = []
     with open(path, "r", encoding = "utf-8",) as archivo_preguntas:
+        archivo_preguntas.readline()
         for linea in archivo_preguntas:
             registro = re.split(";|\n", linea.strip()) #Le saco los espacios para que no tome \n de ["Descripción"]
             opciones = registro[1].split("|") #Vuelvo a convertirlo en una lista
@@ -42,3 +44,55 @@ def cargar_configuracion(path: str) -> dict:
     with open(path,"r", encoding = "utf-8") as archivo_configuracion:
         archivo_cargado = json.load(archivo_configuracion)
         return archivo_cargado
+    
+def escribir_estadisticas(lista_estadisticas: list, path: str):
+    with open(path, "w", encoding="utf-8") as archivo_estadisticas:
+        encabezado = "Usuario;Rondas_jugadas;Preguntas_acertadas;Tiempo_promedio;Contador_partidas_ganadas;Mejor_tiempo\n"
+        archivo_estadisticas.write(encabezado)
+        for estadistica in lista_estadisticas:
+            linea = (
+                f"{estadistica["Usuario"]};"
+                f"{estadistica["Rondas_jugadas"]};"
+                f"{estadistica["Preguntas_acertadas"]};"
+                f"{estadistica["Tiempo_promedio"]};"
+                f"{estadistica["Contador_partidas_ganadas"]};"
+                f"{estadistica["Mejor_tiempo"]}\n"
+            )
+            archivo_estadisticas.write(linea)
+
+
+def agregar_estadistica_csv(nueva_estadistica: dict, path: str):
+    with open(path, "a", encoding="utf-8") as archivo_estadisticas:
+        linea = (
+            f"{nueva_estadistica["Usuario"]},"
+            f"{nueva_estadistica["Rondas_jugadas"]},"
+            f"{nueva_estadistica["Aciertos"]},"
+            f"{nueva_estadistica["Tiempo_promedio"]},"
+            f"{nueva_estadistica["Contador_partidas_ganadas"]},"
+            f"{nueva_estadistica["Mejor_tiempo"]}\n"
+        )
+        archivo_estadisticas.write(linea)
+
+def leer_estadisticas(path: str) -> list:
+    """Lee estadísticas desde un CSV y devuelve una lista de diccionarios."""
+    estadisticas = []
+
+    if os.path.isfile(path):
+        with open(path, "r", encoding="utf-8") as archivo:
+            archivo.readline()  # Saltear encabezado
+            for linea in archivo:
+                linea = linea.strip()
+                if linea != "":
+                    llave = linea.split(";")
+                    estadistica = {
+                        "Usuario": llave[0],
+                        "Rondas_jugadas": int(llave[1]),
+                        "Preguntas_acertadas": int(llave[2]),
+                        "Tiempo_promedio": float(llave[3]),
+                        "Contador_partidas_ganadas": int(llave[4]),
+                        "Mejor_tiempo": float(llave[5])
+                    }
+                    estadisticas.append(estadistica)
+
+    return estadisticas
+

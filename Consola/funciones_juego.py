@@ -1,120 +1,24 @@
 import random
 import time
+import os
+import platform
+from funciones_archivos import *
+from inputimeout import inputimeout, TimeoutOccurred
 
-pregunta_1 = {
-    "Pregunta": "¿Cuántos dedos en total tiene un ser humano?",
-    "Opciones": ["A. 2", "B. 8", "C. 20", "D. 25"],
-    "Respuesta": "C",
-    "Descripcion": "Un ser humano normalmente tiene 20 dedos en total: 10 en las manos y 10 en los pies.",
-    "Categoria/Dificultad": ("General", "Facil")
-}
+respuestas_validas_si_o_no = {"si", "sí", "no"}
+respuestas_validas_opciones = {"a", "b", "c", "d"}
 
-pregunta_2 = {
-    "Pregunta": "¿Quién fue el ganador de la Copa Libertadores 2020?",
-    "Opciones": ["A. Flamengo", "B. Botafogo", "C. San Lorenzo", "D. Palmeiras"],
-    "Respuesta": "D",
-    "Descripcion": "Palmeiras ganó la Copa Libertadores 2020 tras vencer a Santos en la final.",
-    "Categoria/Dificultad": ("Deportes", "Dificil")
-}
+def pedir_nombre(caracteres_maximos, mensaje, mensaje_error) -> str:
+    
+    nombre_usuario = input(mensaje).strip()
+    while len(nombre_usuario) > caracteres_maximos:
+        nombre_usuario = input(mensaje_error).strip()
 
-pregunta_3 = {
-    "Pregunta": "¿Cuál es el río más largo del mundo?",
-    "Opciones": ["A. Amazonas", "B. Nilo", "C. Yangtsé", "D. Misisipi"],
-    "Respuesta": "A",
-    "Descripcion": "El Amazonas es considerado el río más largo del mundo, ubicado en América del Sur.",
-    "Categoria/Dificultad": ("Geografía", "Facil")
-}
+    return nombre_usuario
 
-pregunta_4 = {
-    "Pregunta": "¿Qué elemento químico tiene el símbolo 'O'?",
-    "Opciones": ["A. Oro", "B. Osmio", "C. Oxígeno", "D. Óxido"],
-    "Respuesta": "C",
-    "Descripcion": "El símbolo 'O' corresponde al oxígeno, un elemento esencial para la respiración.",
-    "Categoria/Dificultad": ("Ciencia", "Medio")
-}
-
-pregunta_5 = {
-    "Pregunta": "¿En qué país se encuentra la Torre Eiffel?",
-    "Opciones": ["A. Italia", "B. Francia", "C. España", "D. Alemania"],
-    "Respuesta": "B",
-    "Descripcion": "La Torre Eiffel es un ícono de Francia, ubicada en su capital, París.",
-    "Categoria/Dificultad": ("Geografía", "Medio")
-}
-
-pregunta_6 = {
-    "Pregunta": "¿Qué planeta es conocido como el planeta rojo?",
-    "Opciones": ["A. Venus", "B. Júpiter", "C. Marte", "D. Saturno"],
-    "Respuesta": "C",
-    "Descripcion": "Marte es conocido como el planeta rojo por el óxido de hierro en su superficie.",
-    "Categoria/Dificultad": ("Ciencia", "Dificil")
-}
-
-pregunta_7 = {
-    "Pregunta": "¿Cuántos minutos tiene una hora?",
-    "Opciones": ["A. 60", "B. 100", "C. 30", "D. 120"],
-    "Respuesta": "A",
-    "Descripcion": "Una hora tiene 60 minutos, según el sistema de medición del tiempo estándar.",
-    "Categoria/Dificultad": ("General", "Facil")
-}
-
-pregunta_8 = {
-    "Pregunta": "¿Cuál es la capital de Australia?",
-    "Opciones": ["A. Sydney", "B. Melbourne", "C. Canberra", "D. Brisbane"],
-    "Respuesta": "C",
-    "Descripcion": "Canberra es la capital de Australia desde 1913.",
-    "Categoria/Dificultad": ("Geografía", "Medio")
-}
-
-pregunta_9 = {
-    "Pregunta": "¿Quién escribió 'Cien años de soledad'?",
-    "Opciones": ["A. Mario Vargas Llosa", "B. Gabriel García Márquez", "C. Pablo Neruda", "D. Isabel Allende"],
-    "Respuesta": "B",
-    "Descripcion": "Gabriel García Márquez, escritor colombiano, autor de esta famosa novela.",
-    "Categoria/Dificultad": ("Literatura", "Facil")
-}
-
-pregunta_10 = {
-    "Pregunta": "¿Qué velocidad tiene la luz en el vacío?",
-    "Opciones": ["A. 300,000 km/s", "B. 150,000 km/s", "C. 3,000 km/s", "D. 30,000 km/s"],
-    "Respuesta": "A",
-    "Descripcion": "La velocidad de la luz en el vacío es aproximadamente 300,000 kilómetros por segundo.",
-    "Categoria/Dificultad": ("Ciencia", "Dificil")
-}
-
-pregunta_11 = {
-    "Pregunta": "¿Cuál es el metal más ligero?",
-    "Opciones": ["A. Aluminio", "B. Litio", "C. Magnesio", "D. Titanio"],
-    "Respuesta": "B",
-    "Descripcion": "El litio es el metal más ligero y es usado en baterías recargables.",
-    "Categoria/Dificultad": ("Ciencia", "Medio")
-}
-
-pregunta_12 = {
-    "Pregunta": "¿En qué año comenzó la Primera Guerra Mundial?",
-    "Opciones": ["A. 1912", "B. 1914", "C. 1918", "D. 1939"],
-    "Respuesta": "B",
-    "Descripcion": "La Primera Guerra Mundial comenzó en 1914 y terminó en 1918.",
-    "Categoria/Dificultad": ("Historia", "Facil")
-}
-
-pregunta_13 = {
-    "Pregunta": "¿Cuál es el país con mayor número de idiomas oficiales?",
-    "Opciones": ["A. Sudáfrica", "B. India", "C. Bolivia", "D. Suiza"],
-    "Respuesta": "A",
-    "Descripcion": "Sudáfrica tiene 11 idiomas oficiales reconocidos.",
-    "Categoria/Dificultad": ("General", "Medio")
-}
-
-pregunta_14 = {
-    "Pregunta": "¿Qué instrumento mide la presión atmosférica?",
-    "Opciones": ["A. Barómetro", "B. Termómetro", "C. Anemómetro", "D. Higrómetro"],
-    "Respuesta": "A",
-    "Descripcion": "El barómetro es el instrumento utilizado para medir la presión atmosférica.",
-    "Categoria/Dificultad": ("Ciencia", "Facil")
-}
-
-respuestas_validas_si_o_no = ["si", "sí", "no"]
-respuestas_validas_opciones = ["a", "b", "c", "d"]
+def comprobar_nombre (nombre_usuario: str):
+    if nombre_usuario:
+        pass
 
 def elegir_pregunta (lista_preguntas: list) -> dict | str:
     """Se encarga de elegir aleatoriamente una pregunta en la lista de diccionarios
@@ -145,8 +49,8 @@ def mostrar_turno (pregunta_elegida: dict, ronda: int):
         ronda (int): Ronda actual
     """
     categoria, dificultad = pregunta_elegida["Categoria/Dificultad"]
-    print (f"Ronda: {ronda}")
-    print (f"Categoría: {categoria} | Dificultad: {dificultad}")
+    printear_con_transicion(f"Ronda: {ronda}")
+    printear_con_transicion(f"Categoría: {categoria} | Dificultad: {dificultad}")
     mostrar_pregunta(pregunta_elegida["Pregunta"])
     mostrar_opciones(pregunta_elegida)
 
@@ -189,21 +93,22 @@ def verificar_puntuacion (ronda: int, puntuacion: int) -> int | str | None:
         case 3:
             puntuacion = 500
             print ("Alcanzaste los $500")
-            retirar = pedir_retirarse()
+            retirar =  pedir_confirmacion ("Te gustaría retirarte con tu premio acumulado? Si/No: ", "Respuesta inválida. Ingrese Si o No", respuestas_validas_si_o_no)
         case 5:
             puntuacion = 750
             print ("Alcanzaste los $750")
-            retirar = pedir_retirarse()
+            retirar =  pedir_confirmacion ("Te gustaría retirarte con tu premio acumulado? Si/No: ", "Respuesta inválida. Ingrese Si o No", respuestas_validas_si_o_no)
         case 7:
             puntuacion = 1000
 
     return puntuacion, retirar
 
-def verificar_perdida (respuesta_correcta_o_no: bool) -> bool:
+def verificar_perdida (respuesta_correcta_o_no: bool, tiempo_agotado: bool) -> bool:
     """Verifica si la respuesta es correcta o no. Si no lo es, le pregunta al usuario si quiere reintentar.
 
     Args:
         respuesta_correcta_o_no (bool): Es True si la respuesta correcta, False en caso contrario.
+        tiempo_agotado (bool): Es true si el usuario no respondió a tiempo, False en caso de que haya respondido.
 
     Returns:
         bool: Devuelve dos booleanos. Para perdida corresponde True solo si el usuario no quiere reiniciar, en caso contrario reiniciar será True. 
@@ -213,55 +118,33 @@ def verificar_perdida (respuesta_correcta_o_no: bool) -> bool:
     reiniciar = False
 
     if respuesta_correcta_o_no == False:
+        if not tiempo_agotado:
+            printear_con_transicion("Respuesta incorrecta, has perdido")
         reintentar = pedir_confirmacion("¿Desea reintentar? Si/No: ", "Respuesta inválida. Ingrese Si o No", respuestas_validas_si_o_no)
         if reintentar == "no":
             perdida = True
         elif reintentar == "si" or reintentar == "sí":
-            print ("El juego se reiniciará...")
+            printear_con_transicion("El juego se reiniciará...")
             reiniciar = True
     return perdida, reiniciar
 
-def pedir_retirarse () -> str:
-    """La función le pregunta al usuario si quiere retirarse con su premio acumulado
+def pedir_confirmacion(mensaje: str, mensaje_error: str, set_respuestas_validas: set, tiempo_limite: int = None) -> str:
+    respuesta = "Sin tiempo"
+    while True:
+        try:
+            if tiempo_limite is not None:
+                entrada = inputimeout(prompt=mensaje, timeout=tiempo_limite).strip().lower()
+            else:
+                entrada = input(mensaje).strip().lower()
+        except TimeoutOccurred:
+            break
 
-    Returns:
-        str: Respuesta del usuario (Si/No)
-    """
-    retirar = pedir_confirmacion ("Te gustaría retirarte con tu premio acumulado? Si/No: ", "Respuesta inválida. Ingrese Si o No", respuestas_validas_si_o_no)
-    return retirar
-
-def pedir_confirmacion(mensaje: str, mensaje_error: str, lista_respuestas_validas: list, tiempo_limite: int = None) -> str | None:
-    """Valida la respuesta del usuario. Opcionalmente puede usar un tiempo límite.
-
-    Args:
-        mensaje (str): Mensaje que se va a mostrar al usuario al pedir la respuesta
-
-        mensaje_error (str): Mensaje que se muestra en caso de que el usuario ingrese una respuesta inválida
-
-        lista_respuestas_validas (str): Es la lista que contiene las respuestas válidas que debe ingreesar el usuario
-
-    Returns:
-        str: Devuelve la respuesta validada
-        None: Si se terminó el tiempo
-    """
-    bandera_while = True
-    respuesta = None
-    tiempo_inicio = time.time()
-
-    while bandera_while:
-        if tiempo_limite is not None and time.time() - tiempo_inicio > tiempo_limite:
-            print("¡Se acabó el tiempo!")
-            respuesta = None #Siempre que se termine el tiempo retorna None
-            bandera_while = False
-
+        if entrada in set_respuestas_validas:
+            respuesta = entrada
+            break
         else:
-            respuesta = input(mensaje).strip().lower()
-            for i in range(len(lista_respuestas_validas)):
-                if respuesta == lista_respuestas_validas[i]:
-                    bandera_while = False
-                    break
-            if bandera_while:
-                print(mensaje_error)
+            print(mensaje_error)
+
     return respuesta
 
 def filtrar_pregunta_dificultad (dificultad_actual: str, estado_juego: dict, lista_preguntas: list) -> list:
@@ -275,11 +158,17 @@ def filtrar_pregunta_dificultad (dificultad_actual: str, estado_juego: dict, lis
     Returns:
         list: Retorna la lista de preguntas filtrada por dificultad
     """
-    preguntas_filtradas = [
-        pregunta for pregunta in lista_preguntas
-        if pregunta["Categoria/Dificultad"][1] == dificultad_actual and
-        pregunta["Pregunta"] not in estado_juego["Preguntas_elegidas"]
-    ]
+    preguntas_filtradas = []
+
+    for pregunta in lista_preguntas:
+        pregunta_usada = False
+        dificultad = pregunta["Categoria/Dificultad"][1]
+        if pregunta["Pregunta"] in estado_juego["Preguntas_elegidas"]:
+            pregunta_usada = True
+
+        if dificultad == dificultad_actual and not pregunta_usada:
+            preguntas_filtradas.append(pregunta)
+
     return preguntas_filtradas
 
 def elegir_pregunta_filtrada (estado_juego: dict, preguntas_filtradas: list) -> dict:
@@ -315,20 +204,25 @@ def crear_y_verificar_nueva_pregunta(estado_juego: dict, lista_preguntas: list) 
     pregunta = elegir_pregunta_filtrada(estado_juego, preguntas_filtradas)
     return pregunta
 
-def preguntar_y_responder (estado_juego: dict, lista_preguntas: list) -> bool | dict:
-    """Maneja la secuencia de pregunta y respuesta del juego
-
-    Args:
-        estado_juego (dict): Diccionario que contiene los datos actuales del juego
-        lista_preguntas (list): Lista que contiene los diccionarios de preguntas
-
-    Returns:
-        bool | dict: Devuelve un booleano y un diccionario. La respuesta correcta es True o False dependiendo la verificación. El diccionario corresponde a la pregunta elegida.
-    """
-    pregunta = crear_y_verificar_nueva_pregunta (estado_juego, lista_preguntas)
+def preguntar_y_responder(estado_juego: dict, lista_preguntas: list, tiempo_limite: int = None) -> bool | dict:
+    pregunta = crear_y_verificar_nueva_pregunta(estado_juego, lista_preguntas)
     mostrar_turno(pregunta, estado_juego["Rondas"])
-    respuesta_jugador = pedir_confirmacion("¿Cuál es su respuesta?: ", "Respuesta inválida. Ingrese A, B, C, o D", respuestas_validas_opciones)
-    respuesta_correcta_o_no = verificar_respuesta(respuesta_jugador, pregunta)
+    
+    respuesta_jugador = pedir_confirmacion(
+        "¿Cuál es su respuesta?: ",
+        "Respuesta inválida. Ingrese A, B, C, o D",
+        respuestas_validas_opciones,
+        tiempo_limite
+    )
+    
+    if respuesta_jugador == "Sin tiempo":
+        printear_con_transicion("⏰ Tiempo agotado, perdiste")
+        estado_juego["Perdida"] = True
+        estado_juego["Tiempo_agotado"] = True
+        respuesta_correcta_o_no = False
+    else:
+        respuesta_correcta_o_no = verificar_respuesta(respuesta_jugador, pregunta)
+    
     return respuesta_correcta_o_no, pregunta
 
 def procesar_respuesta_correcta (bandera_continuar: bool, estado_juego: dict, pregunta: dict) -> bool:
@@ -342,8 +236,10 @@ def procesar_respuesta_correcta (bandera_continuar: bool, estado_juego: dict, pr
     Returns:
         bool: Retorna la bandera continuar previamente parametrizada. Se devuelve como False si el usuario decidió retirarse.
     """
-    print ("¡Respuesta correcta!")
-    print (pregunta["Descripcion"])
+    printear_con_transicion("¡Respuesta correcta!")
+    printear_con_transicion(pregunta["Descripcion"])
+    estado_juego["Preguntas_acertadas"] += 1
+    time.sleep(2)
     estado_juego ["Puntuacion"], retirar = verificar_puntuacion(estado_juego["Rondas"], estado_juego["Puntuacion"])
     if retirar == "si" or retirar == "sí":
         bandera_continuar = False
@@ -395,6 +291,83 @@ def obtener_dificultad_por_ronda(ronda: int) -> str:
         dificultad = "Dificil"
     return dificultad
 
+def guardar_estadistica_jugador(estado_juego: dict, path: str):
+    lista_estadisticas = leer_estadisticas(path)
+    nueva_estadistica = crear_estadistica_final(estado_juego, estado_juego["Usuario"])
+
+    jugador_encontrado = False
+
+    for estadistica in lista_estadisticas:
+        if estadistica["Usuario"] == nueva_estadistica["Usuario"]:
+            jugador_encontrado = True #El jugador está en la lista
+            estadistica["Rondas_jugadas"] += nueva_estadistica["Rondas_jugadas"]
+            estadistica["Preguntas_acertadas"] += nueva_estadistica["Preguntas_acertadas"]
+            estadistica["Contador_partidas_ganadas"] += int(nueva_estadistica["Premio_mayor"] == "Si")
+
+            rondas_totales = estadistica["Rondas_jugadas"]
+            rondas_nuevas = nueva_estadistica["Rondas_jugadas"]
+            tiempo_total_nuevo = nueva_estadistica["Tiempo_total"]
+            tiempo_promedio_anterior = estadistica["Tiempo_promedio"]
+
+            rondas_anteriores = rondas_totales - rondas_nuevas
+            tiempo_total_anterior = tiempo_promedio_anterior * rondas_anteriores
+
+            total_tiempo = tiempo_total_anterior + tiempo_total_nuevo
+            estadistica["Tiempo_promedio"] = round(total_tiempo / rondas_totales, 2)
+
+            if nueva_estadistica["Mejor_tiempo"] < estadistica["Mejor_tiempo"]:
+                estadistica["Mejor_tiempo"] = nueva_estadistica["Mejor_tiempo"]
+            break
+
+    if not jugador_encontrado:
+        estadistica_a_guardar = {
+            "Usuario": nueva_estadistica["Usuario"],
+            "Rondas_jugadas": nueva_estadistica["Rondas_jugadas"],
+            "Preguntas_acertadas": nueva_estadistica["Preguntas_acertadas"],
+            "Tiempo_promedio": nueva_estadistica["Tiempo_promedio"],
+            "Contador_partidas_ganadas": int(nueva_estadistica["Premio_mayor"] == "Si"),
+            "Mejor_tiempo": nueva_estadistica["Mejor_tiempo"]
+        }
+        lista_estadisticas.append(estadistica_a_guardar)
+
+    escribir_estadisticas(lista_estadisticas, path)
+
+
+def determinar_premio_mayor(puntuacion:dict):
+    premio_mayor = "No"
+    if puntuacion == 1000:
+        premio_mayor = "Si"
+    return premio_mayor
+
+def determinar_tiempo_promedio(tiempo_total, cantidad_rondas):
+    tiempo_promedio = 0
+    if cantidad_rondas > 0:
+        tiempo_promedio = tiempo_total / cantidad_rondas
+    return tiempo_promedio
+
+def determinar_mejor_tiempo(cantidad_rondas, tiempo_total):
+    mejor_tiempo = 0 #Se inicializa en cero en caso de que el usuario no haya ganado. Al comparar se va a hacer un condicional > 0.
+    if cantidad_rondas == 7:   
+        mejor_tiempo = tiempo_total
+
+    return mejor_tiempo
+
+def crear_estadistica_final(estado_juego: dict, nombre_jugador: str) -> dict:
+    tiempo_total = estado_juego["Fin_tiempo_partida"] - estado_juego["Inicio_tiempo_partida"]
+    tiempo_promedio = determinar_tiempo_promedio(tiempo_total, estado_juego["Rondas"])
+    mejor_tiempo = determinar_mejor_tiempo(estado_juego["Rondas"], tiempo_total)
+
+    estadistica = {
+        "Usuario": nombre_jugador,
+        "Rondas_jugadas": estado_juego["Rondas"],
+        "Preguntas_acertadas": estado_juego["Preguntas_acertadas"],
+        "Tiempo_total": round(tiempo_total, 2), #Round redondea con 2 decimales
+        "Tiempo_promedio": round(tiempo_promedio, 2),
+        "Premio_mayor" : determinar_premio_mayor(estado_juego["Puntuacion"]),
+        "Mejor_tiempo": round(mejor_tiempo, 2)
+    }
+    return estadistica
+
 def inicializar_juego (cantidad_preguntas: int) -> dict:
     """Inicializa el juego creando un diccionario con los datos principales
 
@@ -402,15 +375,20 @@ def inicializar_juego (cantidad_preguntas: int) -> dict:
         dict: Se retorna el diccionario creado con sus keys correspondientes
     """
     estado_juego = {
-        "Rondas" : 0,
-        "Puntuacion" : 0,
-        "Preguntas_elegidas" : set(),
-        "Perdida" : False,
-        "Maximo_rondas" : cantidad_preguntas
+        "Rondas": 0,
+        "Puntuacion": 0,
+        "Preguntas_elegidas": set(),
+        "Perdida": False,
+        "Maximo_rondas": cantidad_preguntas,
+        "Preguntas_acertadas": 0,
+        "Tiempo_total": 0.0,
+        "Tiempo_promedio": 0.0,
+        "Mejor_tiempo": float("inf"), #Se marca como infinito ya que debe ser un número mayor al tiempo del jugador
+        "Reiniciar": False
     }
     return estado_juego
 
-def jugar_ronda (estado_juego: dict, lista_preguntas: list) -> bool:
+def jugar_ronda (estado_juego: dict, lista_preguntas: list, tiempo_limite: int) -> bool:
     """Controla el juego normal de una ronda
 
     Args:
@@ -421,19 +399,21 @@ def jugar_ronda (estado_juego: dict, lista_preguntas: list) -> bool:
         bool: Devuelve dos booleanos. La bandera para continuar jugando y la key "Reiniciar" del dicicionario que contiene los datos del juego
     """
     bandera_continuar_jugando = True
-    respuesta_correcta_o_no, pregunta = preguntar_y_responder(estado_juego, lista_preguntas)
+    estado_juego["Tiempo_agotado"] = False
+    respuesta_correcta_o_no, pregunta = preguntar_y_responder(estado_juego, lista_preguntas, tiempo_limite)
+
     if respuesta_correcta_o_no:
         bandera_continuar_jugando = procesar_respuesta_correcta(bandera_continuar_jugando, estado_juego, pregunta)
 
-    estado_juego["Perdida"], estado_juego["Reiniciar"] = verificar_perdida(respuesta_correcta_o_no)
+    estado_juego["Perdida"], estado_juego["Reiniciar"] = verificar_perdida(respuesta_correcta_o_no, estado_juego["Tiempo_agotado"])
+    
     bandera_continuar_jugando = procesar_respuesta_incorrecta(bandera_continuar_jugando, estado_juego)
 
     bandera_continuar_jugando = verificar_cantidad_rondas(bandera_continuar_jugando, estado_juego)
 
     return bandera_continuar_jugando, estado_juego["Reiniciar"]
 
-
-def inicializar_bucle_del_juego(estado_juego: dict, lista_preguntas: list) -> bool:
+def inicializar_bucle_del_juego(estado_juego: dict, lista_preguntas: list, tiempo_limite: int) -> bool:
     """Inicializa y controla el bucle principal del juego
 
     Args:
@@ -446,9 +426,11 @@ def inicializar_bucle_del_juego(estado_juego: dict, lista_preguntas: list) -> bo
     seguir = True
     reiniciar = False
     while seguir:
-        seguir, reiniciar = jugar_ronda(estado_juego, lista_preguntas)
+        clear_console()
+        seguir, reiniciar = jugar_ronda(estado_juego, lista_preguntas, tiempo_limite)
         if reiniciar:
             break
+        time.sleep(2)
     return reiniciar
 
 def finalizar_juego(estado: dict):
@@ -457,22 +439,54 @@ def finalizar_juego(estado: dict):
     Args:
         estado (dict): Diccionario que contiene los datos actuales del juego
     """
+    clear_console()
     if estado["Perdida"]:
-        print("Ha finalizado el juego. Mejor suerte la próxima.")
+        printear_con_transicion("Ha finalizado el juego. Mejor suerte la próxima.")
 
     elif estado["Rondas"] < 7:
-        print (f"Has retirado tu premio de ${estado["Puntuacion"]} ¡Felicidades!")
+        printear_con_transicion(f"Has retirado tu premio de ${estado["Puntuacion"]} ¡Felicidades!")
     
     else:
-        print (f"¡Felicidades!¡Ganaste el premio mayor de ${estado["Puntuacion"]}!")
+        printear_con_transicion(f"¡Felicidades!¡Ganaste el premio mayor de ${estado["Puntuacion"]}!")
+    
+    time.sleep(3)
 
 
-def jugar (lista_preguntas: list, config: dict):
+def jugar (lista_preguntas: list, config: dict, path_estadisticas: str):
     """Función principal que controla el juego
     """
+    clear_console()
+    nombre_jugador = pedir_nombre(config["caracteres_maximo"], "Ingrese su nombre de usuario (máximo 14 carácteres): ", "Error detectado. Reingrese su nombre de usuario (máximo 14 carácteres): ")
     reiniciar = True
     while reiniciar:
+        clear_console()
+        printear_con_transicion("¡Bienvenido a Quien quiere ser Millonario!\n", delay=0.01)
+        time.sleep(2)
         estado_del_juego = inicializar_juego(config["cantidad_preguntas"])
-        reiniciar = inicializar_bucle_del_juego(estado_del_juego, lista_preguntas)
+        estado_del_juego["Usuario"] = nombre_jugador
+        estado_del_juego["Inicio_tiempo_partida"] = time.time()
+
+        reiniciar = inicializar_bucle_del_juego(estado_del_juego, lista_preguntas, config["tiempo_preguntas"])
+        estado_del_juego["Fin_tiempo_partida"] = time.time()
+
         if not reiniciar:
             finalizar_juego(estado_del_juego)
+            printear_con_transicion(f"Estadísticas de la partida:\n- Rondas jugadas: {estado_del_juego['Rondas']}\n- Preguntas acertadas: {estado_del_juego['Preguntas_acertadas']}")
+            guardar_estadistica_jugador(estado_del_juego, path_estadisticas)
+
+def printear_con_transicion(text, delay=0.009):
+    for char in text:
+        print(char, end='', flush=True)
+        time.sleep(delay)
+    print()
+
+
+def clear_console():
+    """
+    Limpia la consola dependiendo del sistema operativo.
+    """
+    system = platform.system()
+    if system == 'Windows':
+        os.system('cls')
+    elif system == 'Linux':
+        os.system('clear')
