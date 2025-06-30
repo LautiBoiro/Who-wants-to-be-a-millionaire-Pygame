@@ -292,70 +292,111 @@ def obtener_dificultad_por_ronda(ronda: int) -> str:
     return dificultad
 
 def guardar_estadistica_jugador(estado_juego: dict, path: str):
+    """Controla las estadisticas del jugador.
+
+    Args:
+        estado_juego (dict): Diccionario que contiene los datos actuales del juego
+        path (str): Path archivo estadisticas.csv
+    """
     lista_estadisticas = leer_estadisticas(path)
     nueva_estadistica = crear_estadistica_final(estado_juego, estado_juego["Usuario"])
 
-    jugador_encontrado = False
+    jugador_existente = False
 
     for estadistica in lista_estadisticas:
         if estadistica["Usuario"] == nueva_estadistica["Usuario"]:
-            jugador_encontrado = True #El jugador está en la lista
-            estadistica["Rondas_jugadas"] += nueva_estadistica["Rondas_jugadas"]
-            estadistica["Preguntas_acertadas"] += nueva_estadistica["Preguntas_acertadas"]
-            estadistica["Contador_partidas_ganadas"] += int(nueva_estadistica["Premio_mayor"] == "Si")
-
-            rondas_totales = estadistica["Rondas_jugadas"]
-            rondas_nuevas = nueva_estadistica["Rondas_jugadas"]
-            tiempo_total_nuevo = nueva_estadistica["Tiempo_total"]
-            tiempo_promedio_anterior = estadistica["Tiempo_promedio"]
-
-            rondas_anteriores = rondas_totales - rondas_nuevas
-            tiempo_total_anterior = tiempo_promedio_anterior * rondas_anteriores
-
-            total_tiempo = tiempo_total_anterior + tiempo_total_nuevo
-            estadistica["Tiempo_promedio"] = round(total_tiempo / rondas_totales, 2)
-
-            if nueva_estadistica["Mejor_tiempo"] < estadistica["Mejor_tiempo"]:
-                estadistica["Mejor_tiempo"] = nueva_estadistica["Mejor_tiempo"]
+            jugador_existente = True
+            actualizar_estadistica_existente(estadistica, nueva_estadistica)
             break
 
-    if not jugador_encontrado:
-        estadistica_a_guardar = {
-            "Usuario": nueva_estadistica["Usuario"],
-            "Rondas_jugadas": nueva_estadistica["Rondas_jugadas"],
-            "Preguntas_acertadas": nueva_estadistica["Preguntas_acertadas"],
-            "Tiempo_promedio": nueva_estadistica["Tiempo_promedio"],
-            "Contador_partidas_ganadas": int(nueva_estadistica["Premio_mayor"] == "Si"),
-            "Mejor_tiempo": nueva_estadistica["Mejor_tiempo"]
-        }
-        lista_estadisticas.append(estadistica_a_guardar)
+    if not jugador_existente:
+        agregar_nuevo_jugador(lista_estadisticas, nueva_estadistica)
 
     escribir_estadisticas(lista_estadisticas, path)
 
+def actualizar_estadistica_existente(estadistica: dict, nueva: dict):
+    estadistica["Rondas_jugadas"] += nueva["Rondas_jugadas"]
+    estadistica["Preguntas_acertadas"] += nueva["Preguntas_acertadas"]
+    estadistica["Contador_partidas_ganadas"] += int(nueva["Premio_mayor"] == "Si")
 
-def determinar_premio_mayor(puntuacion:dict):
+    rondas_anteriores = estadistica["Rondas_jugadas"] - nueva["Rondas_jugadas"]
+    tiempo_total_anterior = estadistica["Tiempo_promedio"] * rondas_anteriores
+    tiempo_total_nuevo = nueva["Tiempo_total"]
+    total_rondas = estadistica["Rondas_jugadas"]
+
+    estadistica["Tiempo_promedio"] = round((tiempo_total_anterior + tiempo_total_nuevo) / total_rondas, 2)
+
+    if nueva["Mejor_tiempo"] < estadistica["Mejor_tiempo"]:
+        estadistica["Mejor_tiempo"] = nueva["Mejor_tiempo"]
+
+def agregar_nuevo_jugador(lista_estadisticas: list, nueva: dict):
+    estadistica = {
+        "Usuario": nueva["Usuario"],
+        "Rondas_jugadas": nueva["Rondas_jugadas"],
+        "Preguntas_acertadas": nueva["Preguntas_acertadas"],
+        "Tiempo_promedio": nueva["Tiempo_promedio"],
+        "Contador_partidas_ganadas": int(nueva["Premio_mayor"] == "Si"),
+        "Mejor_tiempo": nueva["Mejor_tiempo"]
+    }
+    lista_estadisticas.append(estadistica)
+
+def determinar_premio_mayor(puntuacion: int) -> str:
+    """Determina cuando se gana o no el premio mayor
+
+    Args:
+        puntuacion (int): Puntuación actual del jugador
+
+    Returns:
+        str: Devuelve si se ganó o no
+    """
     premio_mayor = "No"
     if puntuacion == 1000:
         premio_mayor = "Si"
     return premio_mayor
 
-def determinar_tiempo_promedio(tiempo_total, cantidad_rondas):
+def determinar_tiempo_promedio(tiempo_total: float, cantidad_rondas: int) -> float:
+    """Determina el tiempo promedio en responder las preguntas durante la partida
+
+    Args:
+        tiempo_total (float): El tiempo total que transcurre durante la partida
+        cantidad_rondas (int): Las rondas jugadas por el jugador
+
+    Returns:
+        float: Devuelve el tiempo promedio
+    """
     tiempo_promedio = 0
     if cantidad_rondas > 0:
         tiempo_promedio = tiempo_total / cantidad_rondas
     return tiempo_promedio
 
-def determinar_mejor_tiempo(cantidad_rondas, tiempo_total):
-    mejor_tiempo = 0 #Se inicializa en cero en caso de que el usuario no haya ganado. Al comparar se va a hacer un condicional > 0.
-    if cantidad_rondas == 7:   
-        mejor_tiempo = tiempo_total
+def determinar_mejor_tiempo(puntuacion: int, tiempo_total: float):
+    """Determina el mejor tiempo en terminar el juego
 
+    Args:
+        puntuacion (int): Puntuación actual del jugador
+        tiempo_total (float): Tiempo total que le tomó al jugador ganar
+
+    Returns:
+        float: Devuelve el mejor tiempo en terminar el juego
+    """
+    mejor_tiempo = float("inf")
+    if puntuacion == 1000:
+        mejor_tiempo = tiempo_total
     return mejor_tiempo
 
 def crear_estadistica_final(estado_juego: dict, nombre_jugador: str) -> dict:
+    """Crea la estadistica final y devuelve estadistica
+
+    Args:
+        estado_juego (dict): Diccionario que contiene los datos actuales del juego
+        nombre_jugador (str): Nombre de usuario del jugador
+
+    Returns:
+        dict: Devuelve la estadistica
+    """
     tiempo_total = estado_juego["Fin_tiempo_partida"] - estado_juego["Inicio_tiempo_partida"]
     tiempo_promedio = determinar_tiempo_promedio(tiempo_total, estado_juego["Rondas"])
-    mejor_tiempo = determinar_mejor_tiempo(estado_juego["Rondas"], tiempo_total)
+    mejor_tiempo = determinar_mejor_tiempo(tiempo_total, estado_juego["Puntuacion"])
 
     estadistica = {
         "Usuario": nombre_jugador,

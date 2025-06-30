@@ -95,4 +95,3 @@ def leer_estadisticas(path: str) -> list:
                     estadisticas.append(estadistica)
 
     return estadisticas
-
