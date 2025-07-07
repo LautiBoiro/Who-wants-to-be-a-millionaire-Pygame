@@ -1,31 +1,13 @@
 import random
-from colorama import Fore, Style
 import time
-import os
-import platform
-from funciones_archivos import *
-from inputimeout import inputimeout, TimeoutOccurred
+from funciones_genericas_archivos import *
+from funciones_puras_juego import *
+from funciones_genericas_juego import pedir_confirmacion, pedir_nombre, filtrar_preguntas
+from interfaz import mostrar_turno, mostrar_resultado_final, mostrar_menu_dificultad, printear_con_transicion, clear_console
+
 
 respuestas_validas_si_o_no = {"si", "sí", "no"}
 respuestas_validas_opciones = {"a", "b", "c", "d"}
-
-def pedir_nombre(caracteres_maximos, mensaje, mensaje_error) -> str:
-    """
-    Solicita al usuario un nombre y valida su longitud.
-
-    Args:
-        caracteres_maximos (int): Cantidad máxima de caracteres permitidos.
-        mensaje (str): Mensaje inicial a mostrar.
-        mensaje_error (str): Mensaje a mostrar si el nombre supera el límite.
-
-    Returns:
-        str: Nombre validado del usuario.
-    """
-    nombre_usuario = input(mensaje).strip()
-    while len(nombre_usuario) > caracteres_maximos:
-        nombre_usuario = input(mensaje_error).strip()
-
-    return nombre_usuario
 
 def elegir_pregunta (lista_preguntas: list) -> dict | str:
     """Se encarga de elegir aleatoriamente una pregunta en la lista de diccionarios
@@ -39,51 +21,6 @@ def elegir_pregunta (lista_preguntas: list) -> dict | str:
     pregunta_elegida = random.choice(lista_preguntas)
     key_pregunta = pregunta_elegida["Pregunta"]
     return pregunta_elegida, key_pregunta
-
-def mostrar_pregunta (key_pregunta: str):
-    """Se encarga de mostrar la pregunta de la key "Pregunta"
-
-    Args:
-        key_pregunta (str): Es la cadena que contiene la pregunta
-    """
-    print (f"{key_pregunta}\n")
-
-def mostrar_turno (pregunta_elegida: dict, ronda: int):
-    """Se encarga de mostrar la ronda actual, categoría de la pregunta, dificultad y sus opciones
-
-    Args:
-        pregunta_elegida (dict): Es el diccionario de la pregunta elegida
-        ronda (int): Ronda actual
-    """
-    categoria, dificultad = pregunta_elegida["Categoria/Dificultad"]
-    printear_con_transicion(f"Ronda: {ronda}")
-    printear_con_transicion(f"Categoría: {categoria} | Dificultad: {dificultad}")
-    mostrar_pregunta(pregunta_elegida["Pregunta"])
-    mostrar_opciones(pregunta_elegida)
-
-def mostrar_opciones(pregunta_elegida: dict):
-    """Se encarga de mostrar las opciones de la key "Opciones"
-
-    Args:
-        pregunta_elegida (dict): Es el diccionario de la pregunta
-    """
-    for opcion in pregunta_elegida["Opciones"]:
-        print (opcion)
-   
-def verificar_respuesta (respuesta: str, pregunta_elegida: dict) -> bool:
-    """Se encarga de verificar si la respuesta ingresada es correcta o no
-
-    Args:
-        respuesta (str): Es la respuesta ingresada por el usuario
-        pregunta_elegida (dict): Es el diccionario de la pregunta
-
-    Returns:
-        bool: Devuelve True en caso de que la respuesta sea correcta, devuelve False en caso de que no lo sea
-    """
-    respuesta_correcta = False
-    if respuesta.lower() == pregunta_elegida ["Respuesta"].lower():
-        respuesta_correcta = True
-    return respuesta_correcta
 
 def verificar_puntuacion (ronda: int, puntuacion: int) -> int | str | None:
     """Se encarga de verificar cuánto puntaje corresponde y, en los casos correspondientes, le pregunta al usuario si quiere retirarse
@@ -134,51 +71,6 @@ def verificar_perdida (respuesta_correcta_o_no: bool, tiempo_agotado: bool) -> b
             printear_con_transicion("El juego se reiniciará...")
             reiniciar = True
     return perdida, reiniciar
-
-def pedir_confirmacion(mensaje: str, mensaje_error: str, set_respuestas_validas: set, tiempo_limite: int = None) -> str:
-    """
-    Solicita confirmación al usuario validando su respuesta con o sin límite de tiempo.
-
-    Args:
-        mensaje (str): Mensaje que se le muestra al usuario.
-        mensaje_error (str): Mensaje de error si la entrada no es válida.
-        set_respuestas_validas (set): Conjunto de respuestas válidas.
-        tiempo_limite (int, opcional): Tiempo límite para responder.
-
-    Returns:
-        str: Respuesta validada o "Sin tiempo" si el tiempo terminó.
-    """
-    respuesta = "Sin tiempo"
-    while True:
-        try:
-            if tiempo_limite is not None:
-                entrada = inputimeout(prompt=mensaje, timeout=tiempo_limite).strip().lower()
-            else:
-                entrada = input(mensaje).strip().lower()
-        except TimeoutOccurred:
-            break
-
-        if entrada in set_respuestas_validas:
-            respuesta = entrada
-            break
-        else:
-            print(mensaje_error)
-
-    return respuesta
-
-#Funcion pura
-def criterio_dificultad(pregunta: dict, dificultad_actual: str, preguntas_elegidas: set) -> bool:
-    """Criterio para filtrar preguntas por dificultad y que no hayan sido usadas."""
-    dificultad = pregunta["Categoria/Dificultad"][1]
-    return dificultad == dificultad_actual and pregunta["Pregunta"] not in preguntas_elegidas
-
-def filtrar_preguntas(lista_preguntas: list, criterio_funcion, *args) -> list:
-    """Función pura y general para filtrar preguntas usando una función como parámetro."""
-    preguntas_filtradas = []
-    for pregunta in lista_preguntas:
-        if criterio_funcion(pregunta, *args):
-            preguntas_filtradas.append(pregunta)
-    return preguntas_filtradas
 
 
 def elegir_pregunta_filtrada (estado_juego: dict, preguntas_filtradas: list) -> dict:
@@ -290,7 +182,7 @@ def verificar_cantidad_rondas (bandera_continuar: bool, estado_juego: dict) -> b
     Returns:
         bool: Retorna la bandera continuar previamente parametrizada. Se devuelve como False si se llegó a la ronda máxima.
     """
-    if estado_juego["Rondas"] == 7:
+    if estado_juego["Rondas"] == estado_juego["Maximo_rondas"]:
         bandera_continuar = False
     return bandera_continuar
 
@@ -344,49 +236,6 @@ def agregar_nuevo_jugador(lista_estadisticas: list, nueva: dict):
     lista_estadisticas.append(nueva)
 
 
-def determinar_premio_mayor(puntuacion: int) -> str:
-    """Determina cuando se gana o no el premio mayor
-
-    Args:
-        puntuacion (int): Puntuación actual del jugador
-
-    Returns:
-        str: Devuelve si se ganó o no
-    """
-    premio_mayor = "No"
-    if puntuacion == 1000:
-        premio_mayor = "Si"
-    return premio_mayor
-
-def determinar_tiempo_promedio(tiempo_total: float, cantidad_rondas: int) -> float:
-    """Determina el tiempo promedio en responder las preguntas durante la partida
-
-    Args:
-        tiempo_total (float): El tiempo total que transcurre durante la partida
-        cantidad_rondas (int): Las rondas jugadas por el jugador
-
-    Returns:
-        float: Devuelve el tiempo promedio
-    """
-    tiempo_promedio = 0
-    if cantidad_rondas > 0:
-        tiempo_promedio = tiempo_total / cantidad_rondas
-    return tiempo_promedio
-
-def determinar_mejor_tiempo(puntuacion: int, tiempo_total: float):
-    """Determina el mejor tiempo en terminar el juego
-
-    Args:
-        puntuacion (int): Puntuación actual del jugador
-        tiempo_total (float): Tiempo total que le tomó al jugador ganar
-
-    Returns:
-        float: Devuelve el mejor tiempo en terminar el juego
-    """
-    mejor_tiempo = float("inf")
-    if puntuacion == 1000:
-        mejor_tiempo = tiempo_total
-    return mejor_tiempo
 
 def crear_estadistica_final(estado_juego: dict, nombre_jugador: str) -> dict:
     """Crea la estadistica final y devuelve estadistica
@@ -412,6 +261,37 @@ def crear_estadistica_final(estado_juego: dict, nombre_jugador: str) -> dict:
         "Mejor_tiempo": round(mejor_tiempo, 2)
     }
     return estadistica
+
+def interpretar_opcion_dificultad(opcion: str) -> tuple[list[str], str] | None:
+    if opcion == "1":
+        dificultad_preguntas_de_la_partida = ["Facil"] * 4 + ["Medio"] * 3
+        modo = "facil"
+    elif opcion == "2":
+        dificultad_preguntas_de_la_partida = ["Facil"] * 3 + ["Medio"] * 2 + ["Dificil"] * 2
+        modo = "normal"
+    elif opcion == "3":
+        dificultad_preguntas_de_la_partida = ["Medio"] * 4 + ["Dificil"] * 3
+        modo = "dificil"
+    elif opcion == "4":
+        dificultad_preguntas_de_la_partida = ["Dificil"] * 7
+        modo = "extremo"
+    return dificultad_preguntas_de_la_partida, modo
+
+def pedir_dificultad() -> list | str:
+    """Se encarga de mostrar el menú de dificultades, toma la respuesta del usuario y la valida
+
+    Returns:
+        list: Devuelve la lista que contiene la dificultad de cada pregunta
+        str: Modo de dificultad elegido por el jugador
+    """
+    mostrar_menu_dificultad()
+    opcion = pedir_confirmacion(
+        "Elija una dificultad (1-4): ",
+        "❌ Opción inválida. Ingrese un número del 1 al 4.",
+        set_respuestas_validas = {"1", "2", "3", "4"}
+    )
+    dificultad_preguntas_de_la_partida, modo = interpretar_opcion_dificultad(opcion)
+    return dificultad_preguntas_de_la_partida, modo
 
 
 def inicializar_juego (cantidad_preguntas: int) -> dict:
@@ -479,70 +359,87 @@ def inicializar_bucle_del_juego(estado_juego: dict, lista_preguntas: list, tiemp
         time.sleep(2)
     return reiniciar
 
-def finalizar_juego(estado: dict):
-    """Muestra los datos al finalizar el juego
+
+def obtener_nombre_jugador(config: dict) -> str:
+    """Se encarga de obtener el nombre del usuario
 
     Args:
-        estado (dict): Diccionario que contiene los datos actuales del juego
+        config (dict): Diccionario que contiene la configuración principal del juego
+
+    Returns:
+        str: Nombre de usuario validado
+    """
+    nombre = pedir_nombre(
+        config["caracteres_maximo"],
+        "Ingrese su nombre de usuario (máximo 14 carácteres): ",
+        "Error detectado. Reingrese su nombre de usuario (máximo 14 carácteres): "
+    )
+    return nombre
+
+def desarrollar_partida(nombre_jugador: str, dificultades_rondas: list, lista_preguntas: list, config: dict) -> dict | bool:
+    """Función que controla el desarrollo de una partida
+
+    Args:
+        nombre_jugador (str): Nombre de usuario del jugador
+        dificultades_rondas (list): Lista de dificultades que va a tener por ronda la partida
+        lista_preguntas (list): Es la lista que contiene los diccionarios de cada pregunta 
+        config (dict): Diccionario que contiene la configuración principal del juego
+
+    Returns:
+        dict: Devuelve el diccionario que controla el estado del juego
+        bool: Devuelve reiniciar cuando finalice el bucle del juego
+    """
+    estado_del_juego = preparar_nueva_partida(nombre_jugador, dificultades_rondas)
+    reiniciar = inicializar_bucle_del_juego(estado_del_juego, lista_preguntas, config["tiempo_preguntas"])
+    estado_del_juego["Fin_tiempo_partida"] = time.time()
+    return estado_del_juego, reiniciar
+
+def finalizar_partida(estado_del_juego: dict, modo: str):
+    """Función que finaliza definitivamente la partida
+
+    Args:
+        estado_del_juego (dict): Diccionario que contiene los datos actuales del juego
+        modo (str): Modo de dificultad elegido por el jugador
+    """
+    mostrar_resultado_final(estado_del_juego)
+    guardar_estadistica_jugador(estado_del_juego, f"estadisticas_{modo}.csv")
+
+def preparar_nueva_partida(nombre_jugador: str, dificultades_rondas: list) -> dict:
+    """Se encarga de preparar los datos para iniciar una nueva partida
+
+    Args:
+        nombre_jugador (str): Nombre del usuario
+        dificultades_rondas (list): Lista de dificultad por ronda a jugar
+
+    Returns:
+        dict: Retorna el diccionario que contiene los datos del juego
     """
     clear_console()
-    if estado["Perdida"]:
-        printear_con_transicion("Ha finalizado el juego. Mejor suerte la próxima.")
+    printear_con_transicion("¡Bienvenido a Quien quiere ser Millonario!\n", delay=0.01)
+    time.sleep(2)
 
-    elif estado["Rondas"] < 7:
-        printear_con_transicion(f"Has retirado tu premio de ${estado["Puntuacion"]} ¡Felicidades!")
-    
-    else:
-        printear_con_transicion(f"¡Felicidades!¡Ganaste el premio mayor de ${estado["Puntuacion"]}!")
-    
-    time.sleep(3)
+    estado_del_juego = inicializar_juego(len(dificultades_rondas))
+    estado_del_juego["Usuario"] = nombre_jugador
+    estado_del_juego["Inicio_tiempo_partida"] = time.time()
+    estado_del_juego["Dificultades"] = dificultades_rondas
+    return estado_del_juego
 
 
 def jugar(lista_preguntas: list, config: dict, modo: str, dificultades_rondas: list):
-    clear_console()
-    nombre_jugador = pedir_nombre(config["caracteres_maximo"],
-        "Ingrese su nombre de usuario (máximo 14 carácteres): ",
-        "Error detectado. Reingrese su nombre de usuario (máximo 14 carácteres): ")
-    reiniciar = True
-    while reiniciar:
-        clear_console()
-        printear_con_transicion("¡Bienvenido a Quien quiere ser Millonario!\n", delay=0.01)
-        time.sleep(2)
-        estado_del_juego = inicializar_juego(len(dificultades_rondas))
-        estado_del_juego["Usuario"] = nombre_jugador
-        estado_del_juego["Inicio_tiempo_partida"] = time.time()
-        estado_del_juego["Dificultades"] = dificultades_rondas  # Agrego las dificultades
-        
-
-        reiniciar = inicializar_bucle_del_juego(estado_del_juego, lista_preguntas, config["tiempo_preguntas"])
-        estado_del_juego["Fin_tiempo_partida"] = time.time()
-
-        if not reiniciar:
-            finalizar_juego(estado_del_juego)
-            printear_con_transicion(f"Estadísticas de la partida:\n- Rondas jugadas: {estado_del_juego['Rondas']}\n- Preguntas acertadas: {estado_del_juego['Preguntas_acertadas']}")
-            nombre_archivo = f"estadisticas_{modo}.csv"
-            guardar_estadistica_jugador(estado_del_juego, nombre_archivo)
-
-def printear_con_transicion(texto, delay=0.009):
-    """
-    Imprime un texto carácter por carácter con una transición visual.
+    """Función principal del juego. Controla inicio, desarrollo y final.
 
     Args:
-        texto (str): Texto a mostrar.
-        delay (float): Tiempo entre cada carácter.
+        lista_preguntas (list): Lista que contiene los diccionarios de preguntas
+        config (dict): Diccionario que contiene la configuración principal del juego
+        modo (str): Modo de dificultad elegido por el jugador
+        dificultades_rondas (list): Lista de dificultades que va a tener por ronda la partida
     """
-    for caracter in texto:
-        print(caracter, end='', flush=True)
-        time.sleep(delay)
-    print()
+    clear_console()
+    nombre_jugador = obtener_nombre_jugador(config)
+    reiniciar = True
 
+    while reiniciar:
+        estado_del_juego, reiniciar = desarrollar_partida(nombre_jugador, dificultades_rondas, lista_preguntas, config)
 
-def clear_console():
-    """
-    Limpia la consola dependiendo del sistema operativo.
-    """
-    system = platform.system()
-    if system == 'Windows':
-        os.system('cls')
-    elif system == 'Linux':
-        os.system('clear')
+    if not reiniciar:
+        finalizar_partida(estado_del_juego, modo)
