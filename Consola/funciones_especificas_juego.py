@@ -262,7 +262,15 @@ def crear_estadistica_final(estado_juego: dict, nombre_jugador: str) -> dict:
     }
     return estadistica
 
-def interpretar_opcion_dificultad(opcion: str) -> tuple[list[str], str] | None:
+def interpretar_opcion_dificultad(opcion: str) -> tuple[list[str], str]:
+    """Interpreta la respuesta del usuario cuando se pide la dificultad
+
+    Args:
+        opcion (str): Respuesta elegida por el usuario
+
+    Returns:
+        tuple[list[str], str: Devuelve una tupla, el primer elemento es la lista que contiene la dificultad de cada ronda 
+    """
     if opcion == "1":
         dificultad_preguntas_de_la_partida = ["Facil"] * 4 + ["Medio"] * 3
         modo = "facil"

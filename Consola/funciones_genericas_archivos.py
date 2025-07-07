@@ -1,4 +1,5 @@
 import json
+from colorama import Fore
 from funciones_puras_archivos import *
 
 def escribir_configuracion(config: dict, path: str):
@@ -42,8 +43,8 @@ def leer_datos_csv(path:str, funcion_leer_linea) -> list:
                         datos.append(dato)
                     else:
                         print(f"⚠️ Error de formato detectado: {linea}")
-    except Exception as error:
-        print(f"Error al leer datos desde {path}: {error}")
+    except Exception:
+        datos = []
     return datos
 
 

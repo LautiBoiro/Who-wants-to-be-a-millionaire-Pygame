@@ -47,12 +47,12 @@ def inicio():
                 mostrar_dificultad(dificultad)
                 estadisticas = leer_estadisticas(path)
 
-                if estadisticas:
+                if not estadisticas:
+                     print(Fore.RED + "❌ No hay estadísticas registradas.")
+                else:
                     for est in estadisticas:
                         mostrar_estadistica_csv(est)
-                else:
-                    print(Fore.RED + "❌ No hay estadísticas registradas.")
-
+                        
         elif opcion == "4":
             print(Fore.RED + "👋 Saliendo del juego... ¡Hasta luego!")
             seguir = False
