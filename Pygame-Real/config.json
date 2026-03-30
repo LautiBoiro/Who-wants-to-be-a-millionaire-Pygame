@@ -2,7 +2,7 @@
     "caracteres_maximo": 14,
     "cantidad_preguntas": 7,
     "tiempo_preguntas": 20,
-    "volumen": 0.7,
+    "volumen": 0.2,
     "brillo": 0.7,
     "muteado": false,
     "daltonismo": {
