@@ -72,7 +72,7 @@ This project helped me improve my skills in:
 
 ## 👨‍💻 Author
 
-**Lautaro Boiro**
+**Lautaro Boiro and Agustin Fernando Arredondo**
 
 - GitHub: [LautiBoiro](https://github.com/LautiBoiro)
 - LinkedIn: https://linkedin.com/in/lautaroboiro
